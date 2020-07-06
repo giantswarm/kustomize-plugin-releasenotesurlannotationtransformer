@@ -11,7 +11,7 @@ Create new file `releaseNotesTransformer.yaml` (File name does not matter)
 apiVersion: giantswarm.io/v1
 kind: releaseNotesURLAnnotationTransformer
 metadata:
-  name: awsReleaesNotesURLAnnotationTransformer
+  name: myReleaesNotesURLAnnotationTransformer
 # `argsOneLiner` contains the name of the provider.
 # The value is being used for the generation of the release
 # notes URL
@@ -25,3 +25,12 @@ transformers:
   - releaseNotesTransformer.yaml
 ```
 
+Make the plugin binary available to kustomize:
+
+```bash
+go get github.com/giantswarm/kustomize-plugin-releasenotesurlannotationtransformer
+mkdir -p "${XDG_CONFIG_HOME:-$HOME/.cache}/kustomize/plugin/giantswarm.io/v1/releasenotesurlannotationtransformer"
+cp "$(go env GOPATH)/bin/kustomize-plugin-releasenotesurlannotationtransformer" "${XDG_CONFIG_HOME:-$HOME/.cache}/kustomize/plugin/giantswarm.io/v1/releasenotesurlannotationtransformer/releaseNotesURLAnnotationTransformer"
+```
+
+When executing `kustomize build` add the `--enable_alpha_plugins` flag.
