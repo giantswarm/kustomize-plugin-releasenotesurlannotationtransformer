@@ -8,30 +8,25 @@ import (
 	"os"
 	"strings"
 
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"github.com/giantswarm/apiextensions/pkg/apis/release/v1alpha1"
 	"sigs.k8s.io/yaml"
 )
 
-func handleDocument(provider, annotationKey string, document []byte) {
-	var release unstructured.Unstructured
-	err := yaml.UnmarshalStrict(document, &release)
+func handleDocument(provider string, document []byte) {
+	var release v1alpha1.Release
+	err := yaml.Unmarshal(document, &release)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		os.Exit(4)
 	}
 
-	if release.GetKind() == "Release" {
-		annotations := release.GetAnnotations()
-		name := release.GetName()
-
-		annotations[annotationKey] = fmt.Sprintf("https://github.com/giantswarm/releases/tree/master/%s/%s", provider, name)
-
-		release.SetAnnotations(annotations)
+	if release.Kind == "Release" {
+		release.Annotations["giantswarm.io/release-notes"] = fmt.Sprintf("https://github.com/giantswarm/releases/tree/master/%s/%s", provider, release.Name)
 
 		r, err := yaml.Marshal(release)
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(1)
+			os.Exit(2)
 		}
 		fmt.Printf("%s\n---\n", r)
 	}
@@ -39,7 +34,6 @@ func handleDocument(provider, annotationKey string, document []byte) {
 
 func main() {
 	provider := os.Args[2]
-	annotationKey := os.Args[3]
 
 	var buf bytes.Buffer
 	reader := bufio.NewReader(os.Stdin)
@@ -49,7 +43,7 @@ func main() {
 		if err != nil {
 			if err == io.EOF {
 				buf.WriteString(line)
-				handleDocument(provider, annotationKey, buf.Bytes())
+				handleDocument(provider, buf.Bytes())
 				break
 			} else {
 				fmt.Println(err)
@@ -57,7 +51,7 @@ func main() {
 			}
 		}
 		if strings.TrimSpace(line) == "---" {
-			handleDocument(provider, annotationKey, buf.Bytes())
+			handleDocument(provider, buf.Bytes())
 			buf.Reset()
 		} else {
 			buf.WriteString(line)
