@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Remove dependency on giantswarm apiextensions
+### Removed
+
+- Remove dependency on giantswarm/apiextensions.
 
 ## [0.1.0]
 
