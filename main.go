@@ -8,24 +8,29 @@ import (
 	"os"
 	"strings"
 
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/yaml"
 )
 
 func handleDocument(provider, annotationKey string, document []byte) {
-	var release map[string]interface{}
-	err := yaml.Unmarshal(document, &release)
+	var release unstructured.Unstructured
+	err := yaml.UnmarshalStrict(document, &release)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	kind := release["kind"]
-
-	if kind == "Release" {
-		annotations := release["metadata"].(map[string]interface{})
-		name := annotations["name"]
+	if release.GetKind() == "Release" {
+		annotations := release.GetAnnotations()
+		if annotations == nil {
+			fmt.Printf("No annotations found for %s\n", document)
+			os.Exit(1)
+		}
+		name := release.GetName()
 
 		annotations[annotationKey] = fmt.Sprintf("https://github.com/giantswarm/releases/tree/master/%s/%s", provider, name)
+
+		release.SetAnnotations(annotations)
 
 		r, err := yaml.Marshal(release)
 		if err != nil {

@@ -3,7 +3,6 @@ module github.com/giantswarm/kustomize-plugin-releasenotesurlannotationtransform
 go 1.14
 
 require (
-	github.com/kr/pretty v0.1.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+	k8s.io/apimachinery v0.18.6
 	sigs.k8s.io/yaml v1.2.0
 )
