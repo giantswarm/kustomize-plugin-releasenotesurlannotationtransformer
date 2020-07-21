@@ -22,10 +22,6 @@ func handleDocument(provider, annotationKey string, document []byte) {
 
 	if release.GetKind() == "Release" {
 		annotations := release.GetAnnotations()
-		if annotations == nil {
-			fmt.Printf("No annotations found for %s\n", document)
-			os.Exit(1)
-		}
 		name := release.GetName()
 
 		annotations[annotationKey] = fmt.Sprintf("https://github.com/giantswarm/releases/tree/master/%s/%s", provider, name)
